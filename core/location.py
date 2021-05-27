@@ -16,5 +16,5 @@ class Location():
     def __repr__(self):
 
         return f"{self.utc_time} [{self.mode}] :: ({self.latitude}, {self.longitude}, {self.altitude}), " \
-               f"({self.heading}, {self.horizontal_speed}, {self.heading})"
+               f"({self.heading}, {self.horizontal_speed}, {self.climb})"
     

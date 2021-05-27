@@ -146,7 +146,7 @@ class Monitor(Thread):
             logger.info(str(loc))  # TODO: remove after DEBUG
 
             # Put the location instance in the shared queue
-            if self.gpslogging is True:
+            if self.gpslogging is True and packet.mode == 3:
                 self.q.put(loc)
                 logger.info("put gpsdata to queue!")
             else:
