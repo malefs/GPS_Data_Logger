@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 
 WAIT_STOPLOGGING = 60 * 5
-SPEEDTHRESH_KMH = 3
+SPEEDTHRESH_KMH = 5
 
 # Initialize logger for the module
 logger = logging.getLogger(__name__)
@@ -88,8 +88,12 @@ class Monitor(Thread):
 
             # insert data in database
             while (self.running.isSet()):
-                self.report_current_location()
+                retval=self.report_current_location()
                 time.sleep(self.appconfig.monitor_delay)
+                if retval<0:
+                   logger.error("error report location")
+                   import gpsd
+
 
         else:
             logger.error("Failed to connect to the GPS deamon")
@@ -127,7 +131,7 @@ class Monitor(Thread):
                     delta = datetime.now() - self.lastdrivingtime
                     if delta.seconds > WAIT_STOPLOGGING:
                         logger.info(f"stop logging after {WAIT_STOPLOGGING} seconds not driving")
-                        self.gpslogging = True
+                        self.gpslogging =  False
                     else:
                         logger.info(f"wait for stop logging after driving {WAIT_STOPLOGGING - delta.seconds}")
 
