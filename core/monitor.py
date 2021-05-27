@@ -53,6 +53,7 @@ class Monitor(Thread):
         self.enabled = False
         self.lastdrivingtime = datetime.now()
         self.gpslogging = False
+        self.gpsconnected = False
 
     def init_connection(self):
 
@@ -62,11 +63,12 @@ class Monitor(Thread):
 
             # Attempts to create a connection to the GPSD server
             gpsd.connect(self.appconfig.gpsd_ip_address, self.appconfig.gpsd_port)
-
+            self.gpsconnected=True
             return 0
 
         except Exception as error:
             logger.error(f"Exception: {str(error)}")
+            self.gpsconnected = False
             return -1
 
     def start(self):
@@ -81,22 +83,18 @@ class Monitor(Thread):
 
         """ Runs the monitor infinite loop """
 
-        # Opens database connection
-        rcode = self.init_connection()
+        # Opens gpsd connection
 
-        if rcode == 0:
 
             # insert data in database
-            while (self.running.isSet()):
-                retval=self.report_current_location()
-                time.sleep(self.appconfig.monitor_delay)
-                if retval<0:
-                   logger.error("error report location")
-                   import gpsd
+        while (self.running.isSet()):
+            retval=self.report_current_location()
+            if retval<0:
+               logger.error("error report location,  try reconnection!")
+               self.init_connection()
 
+            time.sleep(self.appconfig.monitor_delay)
 
-        else:
-            logger.error("Failed to connect to the GPS deamon")
 
     def report_current_location(self):
 
@@ -158,6 +156,7 @@ class Monitor(Thread):
 
         except Exception as inst:
             logger.error(f'Type: {type(inst)} -- Args: {inst.args} -- Instance: {inst}')
+            self.gpslogging = False
             return -1
 
     def stop(self):
