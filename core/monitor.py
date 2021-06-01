@@ -7,7 +7,7 @@ import time,sys
 import logging
 from datetime import datetime
 
-WAIT_STOPLOGGING = 60 * 5
+WAIT_STOPLOGGING = 60 * 1
 SPEEDTHRESH_KMH = 5
 
 # Initialize logger for the module
@@ -52,7 +52,7 @@ class Monitor(Thread):
         self.appconfig = appconfig
         self.enabled = False
         self.lastdrivingtime = datetime.now()
-        self.gpslogging = False
+        self.gpslogging = 0
         self.gpsconnected = False
 
     def init_connection(self):
@@ -123,14 +123,15 @@ class Monitor(Thread):
 
             if abs(hspeed) * 3.6 > SPEEDTHRESH_KMH:
                 self.lastdrivingtime = datetime.now()
-                self.gpslogging = True
+                self.gpslogging +=1
 
             else:
+                
                 if self.lastdrivingtime is not None:
                     delta = datetime.now() - self.lastdrivingtime
                     if delta.seconds > WAIT_STOPLOGGING:
                         logger.info(f"stop logging after {WAIT_STOPLOGGING} seconds not driving")
-                        self.gpslogging =  False
+                        self.gpslogging =  0
                     else:
                         logger.info(f"wait for stop logging after driving {WAIT_STOPLOGGING - delta.seconds}")
 
@@ -147,7 +148,7 @@ class Monitor(Thread):
             logger.info(str(loc))  # TODO: remove after DEBUG
 
             # Put the location instance in the shared queue
-            if self.gpslogging is True and packet.mode == 3:
+            if self.gpslogging  > 3 and packet.mode == 3:
                 self.q.put(loc)
                 logger.info("put gpsdata to queue!")
             else:
@@ -157,7 +158,7 @@ class Monitor(Thread):
 
         except Exception as inst:
             logger.error(f'Type: {type(inst)} -- Args: {inst.args} -- Instance: {inst}')
-            self.gpslogging = False
+            self.gpslogging = 0
             return -1
 
     def stop(self):
