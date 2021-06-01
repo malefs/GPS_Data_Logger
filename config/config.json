@@ -1,5 +1,5 @@
 { 
-    "gpsd_ip_address": "10.8.0.126",
+    "gpsd_ip_address": "127.0.0.1",
     "gpsd_port" : 2947,
     "start_gpsd": false,
     "default_device": "/dev/ttyACM0",

@@ -62,6 +62,7 @@ class Monitor(Thread):
         try:
 
             # Attempts to create a connection to the GPSD server
+            logger.info(f"connect to gpsd server: {self.appconfig.gpsd_ip_address}:{self.appconfig.gpsd_port}")
             gpsd.connect(self.appconfig.gpsd_ip_address, self.appconfig.gpsd_port)
             self.gpsconnected=True
             return 0
