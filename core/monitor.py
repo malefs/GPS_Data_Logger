@@ -146,7 +146,7 @@ class Monitor(Thread):
                                     climb=climb, horizontal_speed=hspeed, mode=mode, utc_time=utc_time)
 
             logger.info(str(loc))  # TODO: remove after DEBUG
-
+            logger.info(packet.map_url())
             # Put the location instance in the shared queue
             if self.gpslogging  > 3 and packet.mode == 3:
                 self.q.put(loc)
